@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTOS Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 ">
+    <div class="bg-blue-950 p-4 mb-4 flex justify-center items-center">
+        <h1 class="text-3xl font-bold text-center   text-white">
+            Wearable Device RTOS Simulator
+        </h1>
+    </div>  
+    <div class="max-w-4xl mx-auto ">
+        <div>
+            <!-- User Page -->
+            <div class="bg-white p-4 shadow-md rounded-lg">
+                <h2 class="text-xl font-semibold mb-2">User Panel</h2>
+                <div>
+                    <label class="block mb-2">Select Tasks </label>
+                    <div id="userTasks"class=" flex flex-col gap-2 mb-2">
+                        <label for="taskTime" class="block bg-blue-100 px-8 p-2 rounded-xl hover:bg-blue-200">
+                            <input type="checkbox" name="taskTime" id="taskTime" value="time"> See Time<br>
+                        </label>
+                        <label for="taskMusic" class="block bg-blue-100 px-8 p-2 rounded-xl hover:bg-blue-200">
+                            <input type="checkbox" id="taskMusic" value="music"> Listen to Music<br>
+                        </label>
+                        <label for="taskHeartbeat" class="block bg-blue-100 px-8 p-2 rounded-xl hover:bg-blue-200">
+                            <input type="checkbox" id="taskHeartbeat" value="heartbeat"> Monitor Heartbeat<br>
+                        </label>
+                        <label for="taskCall" class="block bg-blue-100 px-8 p-2 rounded-xl hover:bg-blue-200">
+                            <input type="checkbox" id="taskCall" value="call"> Attend Phone Call<br>
+                        </label>
+                        <label for="taskMessage" class="block bg-blue-100 px-8 p-2 rounded-xl hover:bg-blue-200">
+                            <input type="checkbox" id="taskMessage" value="message"> Send Message<br>
+                        </label>                   
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <button  class="cursor-pointer mx-auto bg-blue-900 text-white px-4 py-2 rounded-xl">Start Tasks</button>
+                    </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+    
+
+        <!-- Process Display -->
+        
+
+    <script src="script.js"></script>
+</body>
+</html>
