@@ -2,8 +2,6 @@
 This repository contains the the simulation project depicting the working of the real-time operating system.
 
 
-# RTOS Simulator for Wearable Devices
-
 This project is a web-based **Real-Time Operating System (RTOS) Simulator** for wearable devices. It allows users to select tasks to execute based on the **Rate Monotonic Scheduling (RMS)** algorithm. The platform also provides an **Admin Panel** to modify task deadlines dynamically.
 
 ## Features
