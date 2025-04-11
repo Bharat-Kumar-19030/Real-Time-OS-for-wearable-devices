@@ -3,76 +3,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RTOS Simulator</title>
+    <title>RTOS Scheduler Simulator</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            background-color: #0f0f0f;
+            color: #00fff7;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        h1, h2, h3 {
+            /* text-shadow: 0 0 10px #00fff7; */
+        }
+
+        .neon-box {
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 1px solid #00fff7;
+            box-shadow: 0 0 7px #00fff7;
+        }
+
+        .neon-button {
+            background-color: transparent;
+            border: 2px solid #00fff7;
+            color: #00fff7;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            /* text-shadow: 0 0 5px #00fff7; */
+        }
+
+        .neon-button:hover {
+            background-color: #cedbdb;
+            color: #000;
+            box-shadow: 0 0 5px #00fff7;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 ">
-    <div class="bg-blue-950 p-4 mb-4 flex justify-center items-center">
-        <h1 class="text-3xl font-bold text-center   text-white">
-            Wearable Device RTOS Simulator
-        </h1>
-    </div>  
-    <div class="max-w-4xl mx-auto ">
-        <div>
-            <!-- User Page -->
-            <div class="bg-white p-4 shadow-md rounded-lg">
-                <h2 class="text-xl font-semibold mb-2">User Panel</h2>
-                <div>
-                    <label class="block mb-2">Select Tasks </label>
-                    <div id="userTasks"class=" flex flex-col gap-2 mb-2">
-                        <label for="taskTime" class="block bg-blue-100 px-8 p-2 rounded-xl hover:bg-blue-200">
-                            <input type="checkbox" name="taskTime" id="taskTime" value="time"> See Time<br>
-                        </label>
-                        <label for="taskMusic" class="block bg-blue-100 px-8 p-2 rounded-xl hover:bg-blue-200">
-                            <input type="checkbox" id="taskMusic" value="music"> Listen to Music<br>
-                        </label>
-                        <label for="taskHeartbeat" class="block bg-blue-100 px-8 p-2 rounded-xl hover:bg-blue-200">
-                            <input type="checkbox" id="taskHeartbeat" value="heartbeat"> Monitor Heartbeat<br>
-                        </label>
-                        <label for="taskCall" class="block bg-blue-100 px-8 p-2 rounded-xl hover:bg-blue-200">
-                            <input type="checkbox" id="taskCall" value="call"> Attend Phone Call<br>
-                        </label>
-                        <label for="taskMessage" class="block bg-blue-100 px-8 p-2 rounded-xl hover:bg-blue-200">
-                            <input type="checkbox" id="taskMessage" value="message"> Send Message<br>
-                        </label>                   
-                    </div>
-                    <div class="flex items-center justify-center">
-                        <button onclick="selectTasks()" class="cursor-pointer mx-auto bg-blue-900 text-white px-4 py-2 rounded-xl">Start Tasks</button>
-                    </div>
-                    </div>
-            </div>
+<body class="">
+    <h1 class="text-4xl font-bold text-center mb-10 bg-gray-700 p-4 border-b border-b-[#00fff7]">Wearable Device RTOS Scheduling Simulator</h1>
+
+<div class="max-w-5xl mx-auto mb-4">
+    
+    <div class="neon-box p-4 rounded-lg mb-6">
+        <h2 class="text-2xl font-semibold mb-3">Scheduler Configuration</h2>
+        <label class="block mb-2">Select Scheduling Algorithm:</label>
+        <select id="algorithm" class="border border-cyan-300 bg-black text-cyan-300 p-2 w-full mb-4">
+            <option value="rms">Rate Monotonic Scheduling (RMS)</option>
+            <option value="edf">Earliest Deadline First (EDF)</option>
+        </select>
+
+        <div id="task-inputs" class="grid gap-2"></div>
+        <button onclick="addTaskField()" class="neon-button mr-3">Add Task</button>
+        <button onclick="startScheduling()" class="neon-button">Start Scheduling</button>
+    </div>
+
+    <div class="neon-box p-4 rounded-lg mb-6">
+        <h2 class="text-2xl font-semibold mb-3">User-Added Processes</h2>
+        <ul id="user-added" class="list-disc list-inside text-sm text-cyan-300"></ul>
+    </div>
+
+    <div class="neon-box p-4 rounded-lg mb-6">
+        <h2 class="text-2xl font-semibold mb-3">Gantt Chart</h2>
+        <canvas id="ganttChart" height="200"></canvas>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="neon-box p-4 rounded ">
+            <h3 class="text-lg font-medium">Scheduled Tasks</h3>
+            <ul id="scheduled-list" class="list-disc list-inside text-cyan-300"></ul>
         </div>
-        <div class="bg-white p-4 shadow-md rounded-lg mt-4">
-            <h2 class="text-xl font-semibold mb-2">Process Display</h2>
-            <div id="ongoing-processes" class="bg-green-100 p-2 rounded mb-2">
-                <h3 class="font-medium">Ongoing Processes:</h3>
-                <ul id="ongoing-list"></ul>
-            </div>
-            <div id="queued-processes" class="bg-yellow-100 p-2 rounded mb-2">
-                <h3 class="font-medium">Queued Processes:</h3>
-                <ul id="queued-list"></ul>
-            </div>
-            <div id="completed-processes" class="bg-blue-100 p-2 rounded">
-                <h3 class="font-medium">Completed Processes:</h3>
-                <ul id="completed-list"></ul>
-            </div>
-        </div>
-        <div class="bg-white p-4 shadow-md rounded-lg my-4">
-            <h2 class="text-xl font-semibold mb-2">Admin Panel</h2>
-            <div id="admin-panel">
-                <label class="block mb-2">Select Task to Change Deadline</label>
-                <select id="adminTask" class="border p-2 w-full mb-2">
-                    <option class=" bg-green-100"  value="time">Select</option>                       
-                    <option value="music">Listen to Music</option>
-                    <option value="heartbeat">Monitor Heartbeat</option>
-                    <option value="call">Attend Phone Call</option>
-                    <option value="message">Send Message</option>
-                </select>
-                <input type="number" id="taskDeadline" placeholder="Deadline (ms)" class="border p-2 w-full mb-2">
-                <button onclick="addTask()" class="bg-blue-900 text-white px-4 py-2 rounded-xl">Add/Change Task Deadline</button>
-            </div>
+        <div class="neon-box p-4 rounded ">
+            <h3 class="text-lg font-medium">Missed Deadlines</h3>
+            <ul id="missed-list" class="list-disc list-inside text-red-400"></ul>
         </div>
     </div>
-    <script src="script.js"></script>
+</div>
+
+<script>
+let tasks = [];
+let taskId = 0;
+
+function addTaskField() {
+    const algorithm = document.getElementById('algorithm').value;
+    const taskInputs = document.getElementById('task-inputs');
+
+    const div = document.createElement('div');
+    div.className = 'grid grid-cols-5 gap-2 items-center';
+
+    div.innerHTML = `
+        <input type="text" placeholder="Task Name" class="border p-1 rounded-md my-3 text-black" id="name-${taskId}">
+        ${algorithm === 'rms' ? `
+            <input type="number"  placeholder="Period (T)" class="border p-1 rounded-md my-3 text-black" id="p-${taskId}">
+            <input type="number" placeholder="Computation Time (C)" class="border p-1 rounded-md my-3 text-black" id="c-${taskId}">
+            <input type="hidden" value="0" id="rt-${taskId}">
+            <input type="hidden" value="0" id="d-${taskId}">
+        ` : `
+            <input type="number" placeholder="Release Time" class="border p-1 rounded-md my-3 text-black" id="rt-${taskId}">
+            <input type="number" placeholder="Execution Time" class="border p-1 rounded-md my-3 text-black" id="c-${taskId}">
+            <input type="number" placeholder="Deadline" class="border p-1 rounded-md my-3 text-black" id="d-${taskId}">
+            <input type="hidden" value="0" id="p-${taskId}">
+        `}
+    `;
+
+    taskInputs.appendChild(div);
+    taskId++;
+}
+
+function startScheduling() {
+    const algorithm = document.getElementById('algorithm').value;
+    tasks = [];
+    for (let i = 0; i < taskId; i++) {
+        const name = document.getElementById(`name-${i}`)?.value;
+        if (!name) continue;
+
+        const task = {
+            name: name,
+            period: parseInt(document.getElementById(`p-${i}`)?.value) || 0,
+            computation: parseInt(document.getElementById(`c-${i}`)?.value) || 0,
+            release: parseInt(document.getElementById(`rt-${i}`)?.value) || 0,
+            deadline: parseInt(document.getElementById(`d-${i}`)?.value) || 0,
+            id: i
+        };
+
+        tasks.push(task);
+    }
+
+    displayUserTasks(tasks);
+
+    if (algorithm === 'rms') {
+        scheduleRMS(tasks);
+    } else {
+        scheduleEDF(tasks);
+    }
+}
+
+function displayUserTasks(tasks) {
+    const list = document.getElementById("user-added");
+    list.innerHTML = "";
+    tasks.forEach(task => {
+        const li = document.createElement("li");
+        li.textContent = `${task.name} - P: ${task.period}, C: ${task.computation}, D: ${task.deadline}, R: ${task.release}`;
+        list.appendChild(li);
+    });
+}
+
+function scheduleRMS(tasks) {
+    const sorted = tasks.filter(t => t.period && t.computation).sort((a, b) => a.period - b.period);
+    const chartData = [], missed = [], scheduledList = document.getElementById("scheduled-list"), missedList = document.getElementById("missed-list");
+
+    scheduledList.innerHTML = "";
+    missedList.innerHTML = "";
+
+    let currentTime = 0;
+
+    sorted.forEach(task => {
+        if (currentTime + task.computation > task.period) {
+            missed.push({ name: task.name, time: currentTime });
+        } else {
+            chartData.push({ x: currentTime, x2: currentTime + task.computation, y: task.name });
+            scheduledList.innerHTML += `<li>${task.name} from ${currentTime} to ${currentTime + task.computation}</li>`;
+            currentTime += task.computation;
+        }
+    });
+
+    missed.forEach(m => missedList.innerHTML += `<li>${m.name} missed at ${m.time}ms</li>`);
+    drawGantt(chartData);
+}
+
+function scheduleEDF(tasks) {
+    const chartData = [], missed = [];
+    const scheduledList = document.getElementById("scheduled-list");
+    const missedList = document.getElementById("missed-list");
+
+    scheduledList.innerHTML = "";
+    missedList.innerHTML = "";
+
+    const taskQueue = [...tasks]; // shallow copy
+    let currentTime = 0;
+    const completed = [];
+
+    while (taskQueue.length > 0) {
+        // Filter tasks that have been released
+        const availableTasks = taskQueue.filter(t => t.release <= currentTime);
+
+        if (availableTasks.length === 0) {
+            currentTime++;
+            continue;
+        }
+
+        // Select the task with the earliest deadline
+        availableTasks.sort((a, b) => a.deadline - b.deadline);
+        const task = availableTasks[0];
+
+        // Check deadline miss
+        if (currentTime + task.computation > task.deadline) {
+            missed.push({ name: task.name, time: currentTime });
+        } else {
+            chartData.push({
+                x: currentTime,
+                x2: currentTime + task.computation,
+                y: task.name
+            });
+            scheduledList.innerHTML += `<li>${task.name} from ${currentTime} to ${currentTime + task.computation}</li>`;
+            currentTime += task.computation;
+        }
+
+        // Remove from taskQueue
+        const index = taskQueue.findIndex(t => t.id === task.id);
+        taskQueue.splice(index, 1);
+    }
+
+    missed.forEach(m =>
+        missedList.innerHTML += `<li>${m.name} missed at ${m.time}ms</li>`
+    );
+
+    drawGantt(chartData);
+}
+
+function drawGantt(data) {
+    const ctx = document.getElementById("ganttChart").getContext("2d");
+    if (window.ganttChart && typeof window.ganttChart.destroy === 'function') {
+    window.ganttChart.destroy();
+}
+
+    const labels = [...new Set(data.map(d => d.y))];
+    const backgroundColors = [
+        'rgba(59, 130, 246, 0.8)',
+        'rgba(16, 185, 129, 0.8)',
+        'rgba(234, 88, 12, 0.8)',
+        'rgba(168, 85, 247, 0.8)',
+        'rgba(239, 68, 68, 0.8)'
+    ];
+
+    const datasets = labels.map((label, index) => {
+        const segments = data
+            .filter(d => d.y === label)
+            .map(d => ({
+                x: d.x,
+                x2: d.x2,
+                y: label
+            }));
+        
+        return {
+            label,
+            data: segments.map(seg => seg.x2 - seg.x),
+            base: segments.map(seg => seg.x),
+            backgroundColor: backgroundColors[index % backgroundColors.length],
+            borderColor: '#222',
+            borderWidth: 1
+        };
+    });
+
+    window.ganttChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: datasets
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function (ctx) {
+                            const start = ctx.dataset.base[ctx.dataIndex];
+                            const duration = ctx.raw;
+                            const end = start + duration;
+                            return `${ctx.dataset.label}: Start = ${start}, End = ${end}`;
+                        }
+                    }
+                },
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    stacked: true,
+                    title: {
+                        display: true,
+                        text: 'Time (ms)'
+                    }
+                },
+                y: {
+                    stacked: true,
+                    title: {
+                        display: true,
+                        text: 'Tasks'
+                    }
+                }
+            }
+        }
+    });
+}
+
+
+
+</script>
 </body>
 </html>
